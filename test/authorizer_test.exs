@@ -58,4 +58,33 @@ defmodule AuthorizerTest do
     assert res == account
   end
 
+  test "The transaction amount exceed the available limit" do
+    #Given
+    account = %Account{active_card: true, available_limit: 150}
+    # When
+    transaction = %Transaction{amount: 200}
+    # I expect
+    res = Authorizer.validate_limit({:ok, account, transaction})
+
+    assert res == {:error, :invalid_limit, account}
+  end
+
+  test "The transaction amount not exceed the available limit" do
+    #Given
+    account = %Account{active_card: true, available_limit: 150}
+    # When
+    transaction = %Transaction{amount: 100}
+    # I expect
+    res = Authorizer.validate_limit({:ok, account, transaction})
+
+    assert res == {:ok, account, transaction}
+  end
+
+  test "If I get a previous error I expect the same error" do
+    # Given
+    error_response = {:error, :not_initialized, :not_initialized}
+    res = Authorizer.validate_limit(error_response)
+    assert res == error_response
+  end
+
 end
