@@ -87,14 +87,27 @@ defmodule AuthorizerTest do
     assert res == error_response
   end
 
-  test "Running the pipeline with success for authorize a transaction" do
-    # Given
-    account = %Account{active_card: true, available_limit: 150}
-    # When
-    transaction = %Transaction{amount: 700}
-    # I expect
-    res = Authorizer.authorize_transaction(account, transaction)
+  test "There should not be more than 3 transactions on a 2-minute interval when there aren't authorized transactions" do
+    #Given
+    account = %Account{active_card: true, available_limit: 150, authorized_transactions: []}
+    transaction = %Transaction{amount: 100, time: ~N[2020-01-08 23:07:06]}
+    res = Authorizer.validate_interval_limit({:ok, account, transaction})
     assert res == {:ok, account, transaction}
-  
   end
+
+  test "There should not be more than 3 transactions on a 2-minute interval" do
+    #Given
+    transaction1 = %Transaction{amount: 100, time: ~N[2020-01-08 23:07:20]}
+    transaction2 = %Transaction{amount: 100, time: ~N[2020-01-08 23:07:10]}
+    transaction3 = %Transaction{amount: 100, time: ~N[2020-01-08 23:07:00]}
+    account = 
+      %Account{active_card: true, 
+      available_limit: 150, 
+      authorized_transactions: 
+        [transaction1, transaction2, transaction3]}
+    transaction = %Transaction{amount: 100, time: ~N[2020-01-08 23:07:30]}
+    res = Authorizer.validate_interval_limit({:ok, account, transaction})
+    assert res == {:error, :interval_limit, account}
+  end
+
 end
