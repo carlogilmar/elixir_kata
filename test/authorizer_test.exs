@@ -86,4 +86,15 @@ defmodule AuthorizerTest do
     res = Authorizer.validate_limit(error_response)
     assert res == error_response
   end
+
+  test "Running the pipeline with success for authorize a transaction" do
+    # Given
+    account = %Account{active_card: true, available_limit: 150}
+    # When
+    transaction = %Transaction{amount: 700}
+    # I expect
+    res = Authorizer.authorize_transaction(account, transaction)
+    assert res == {:ok, account, transaction}
+  
+  end
 end

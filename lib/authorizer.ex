@@ -35,4 +35,11 @@ defmodule Authorizer do
   defp apply_validation(false, account, _transaction) do
     {:error, :inactive_account, account}
   end
+
+  def authorize_transaction(account, transaction) do
+    {account, transaction}
+    |> valid_account_initialized()
+    |> valid_account_active()
+    |> validate_limit()
+  end
 end
