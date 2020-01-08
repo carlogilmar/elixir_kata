@@ -39,7 +39,7 @@ defmodule Authorizer do
   def validate_interval_limit({:ok, account, transaction}) do
     case length(account.authorized_transactions) do
       t when t in 0..2 -> {:ok, account, transaction}
-      _ -> 
+      _ ->
         [third | [second | [first | _tail]]] = account.authorized_transactions
 
         first_diff = NaiveDateTime.diff(first.time, transaction.time)
@@ -64,25 +64,16 @@ defmodule Authorizer do
 
   def authorize_transaction({:ok, account, transaction}) do
     new_limit = account.available_limit - transaction.amount
-    transactions = [transaction] ++ account.authorized_transactions 
-    account_updated = 
-      %{account | 
-                  available_limit: new_limit, 
+    transactions = [transaction] ++ account.authorized_transactions
+    account_updated =
+      %{account |
+                  available_limit: new_limit,
                   authorized_transactions: transactions}
     {:ok, account_updated}
   end
 
   def authorize_transaction({:error, msg, account}) do
     {:error, msg, account}
-  end
-
-  def authorize(account, transaction) do
-  {account, transaction}
-  |> valid_account_initialized()
-  |> valid_account_active()
-  |> validate_limit() 
-  |> validate_interval_limit()
-  |> authorize_transaction()
   end
 
 end
