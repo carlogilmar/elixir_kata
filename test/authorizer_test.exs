@@ -32,7 +32,7 @@ defmodule AuthorizerTest do
   end
 
   test "No transaction should be accepted when the card is not active" do
-    #Given
+    # Given
     account = %Account{active_card: false, available_limit: 100}
     transaction = %Transaction{amount: 100}
     # Wen
@@ -42,7 +42,7 @@ defmodule AuthorizerTest do
   end
 
   test "transaction should be accepted when the card is active" do
-    #Given
+    # Given
     account = %Account{active_card: true, available_limit: 100}
     transaction = %Transaction{amount: 100}
     # Wen
@@ -59,7 +59,7 @@ defmodule AuthorizerTest do
   end
 
   test "The transaction amount exceed the available limit" do
-    #Given
+    # Given
     account = %Account{active_card: true, available_limit: 150}
     # When
     transaction = %Transaction{amount: 200}
@@ -70,7 +70,7 @@ defmodule AuthorizerTest do
   end
 
   test "The transaction amount not exceed the available limit" do
-    #Given
+    # Given
     account = %Account{active_card: true, available_limit: 150}
     # When
     transaction = %Transaction{amount: 100}
@@ -86,5 +86,4 @@ defmodule AuthorizerTest do
     res = Authorizer.validate_limit(error_response)
     assert res == error_response
   end
-
 end
